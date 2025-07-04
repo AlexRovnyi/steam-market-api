@@ -1,0 +1,88 @@
+package com.rovnyi.steamApp.market.fetcher;
+
+import java.util.Map;
+
+/**
+ * Entity representing price data of an item on the Steam Market.
+ * <p>
+ * This object is typically returned by {@link PriceOverviewFetcher} after parsing
+ * the response from the <code>/priceoverview</code> API endpoint.
+ */
+public class PriceOverview {
+
+    private boolean success;
+    private double lowestPrice;
+    private int volume;
+    private double medianPrice;
+
+    /**
+     * Constructs a {@code PriceOverview} from a parsed JSON map.
+     *
+     * @param map The map representing the JSON response from Steam API
+     */
+    public PriceOverview(Map<String, Object> map) {
+        this.success = (boolean) map.get("success");
+        if (!success) return;
+
+        this.lowestPrice = extractValueDouble((String) map.get("lowest_price"));
+        this.volume = Integer.parseInt((String) map.get("volume"));
+        this.medianPrice = extractValueDouble((String) map.get("median_price"));
+    }
+
+    /**
+     * Converts formatted price text into a usable {@code double} value.
+     * Removes all non-digit characters and divides by 100.
+     *
+     * @param value A price string such as "$0.25" or "₴1,50"
+     * @return Parsed price as a {@code double}
+     */
+    private double extractValueDouble(String value) {
+        return Double.parseDouble(value.replaceAll("[^\\d]", "")) / 100;
+    }
+
+    /**
+     * Whether the API call returned a valid response.
+     *
+     * @return true if valid, false otherwise
+     */
+    public boolean isSuccess() {
+        return success;
+    }
+
+    /**
+     * The current lowest price of the item.
+     *
+     * @return Lowest listed price
+     */
+    public double getLowestPrice() {
+        return lowestPrice;
+    }
+
+    /**
+     * The number of items sold on the Steam Market in the last 24 hours.
+     *
+     * @return Sold quantity in the past 24 hours
+     */
+    public int getVolume() {
+        return volume;
+    }
+
+    /**
+     * The median price of all recent transactions.
+     *
+     * @return Median price value
+     */
+    public double getMedianPrice() {
+        return medianPrice;
+    }
+
+    @Override
+    public String toString() {
+        return "PriceOverview{" +
+               "success=" + success +
+               ", lowest_price=" + lowestPrice +
+               ", volume=" + volume +
+               ", median_price=" + medianPrice +
+               '}';
+    }
+}
