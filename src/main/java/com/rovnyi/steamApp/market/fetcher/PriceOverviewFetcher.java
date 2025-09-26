@@ -69,7 +69,7 @@ public class PriceOverviewFetcher {
             String json = response.body().string();
 
             Map<String, Object> map = mapper.readValue(json, Map.class);
-            if (map.size() < 3) return null;
+            if (map.size() < 2) return null;
 
             return new PriceOverview(map);
         } catch (IOException e) {
