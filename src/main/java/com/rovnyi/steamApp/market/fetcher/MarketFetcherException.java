@@ -6,14 +6,14 @@ package com.rovnyi.steamApp.market.fetcher;
  * Used to wrap lower-level {@link java.io.IOException} or JSON parsing failures
  * during API requests (e.g. in {@link PriceOverviewFetcher}, {@link ItemOrdersHistogramFetcher}).
  */
-public class FetcherException extends RuntimeException {
+public class MarketFetcherException extends RuntimeException {
 
     /**
      * Constructs a new {@code FetcherException} with the specified detail message.
      *
      * @param message the detail message
      */
-    public FetcherException(String message) {
+    public MarketFetcherException(String message) {
         super(message);
     }
 
@@ -22,7 +22,7 @@ public class FetcherException extends RuntimeException {
      *
      * @param cause the underlying cause of the error (e.g. IOException)
      */
-    public FetcherException(Throwable cause) {
+    public MarketFetcherException(Throwable cause) {
         super(cause);
     }
 }

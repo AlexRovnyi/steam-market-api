@@ -25,8 +25,14 @@ public class PriceOverview {
         if (!success) return;
 
         this.lowestPrice = extractValueDouble((String) map.get("lowest_price"));
-        this.volume = Integer.parseInt((String) map.get("volume"));
-        this.medianPrice = extractValueDouble((String) map.get("median_price"));
+
+        if (map.size() == 2) {
+            this.volume = 0;
+            this.medianPrice = 0;
+        } else {
+            this.volume = Integer.parseInt((String) map.get("volume"));
+            this.medianPrice = extractValueDouble((String) map.get("median_price"));
+        }
     }
 
     /**

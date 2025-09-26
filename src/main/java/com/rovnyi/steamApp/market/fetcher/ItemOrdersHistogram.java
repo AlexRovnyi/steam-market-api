@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public class ItemOrdersHistogram {
 
-    private boolean success;
+    private final boolean success;
     private double highestBuyOrder;
     private Map<Double, Integer> buyOrderGraph;
     private Map<Double, Integer> sellOrderGraph;

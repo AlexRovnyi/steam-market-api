@@ -1,4 +1,4 @@
-package com.rovnyi.steamApp.market.enums;
+package com.rovnyi.steamApp.enums;
 
 /**
  * Enum containing the currencies of countries currently supported by this API

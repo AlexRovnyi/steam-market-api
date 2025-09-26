@@ -1,10 +1,10 @@
 package com.rovnyi.steamApp.market.fetcher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rovnyi.steamApp.market.enums.AppID;
-import com.rovnyi.steamApp.market.enums.CountryCode;
-import com.rovnyi.steamApp.market.enums.CurrencyCode;
-import com.rovnyi.steamApp.market.enums.Language;
+import com.rovnyi.steamApp.enums.AppID;
+import com.rovnyi.steamApp.enums.CountryCode;
+import com.rovnyi.steamApp.enums.CurrencyCode;
+import com.rovnyi.steamApp.enums.Language;
 import com.rovnyi.steamApp.market.provider.ItemNameIdProvider;
 import com.rovnyi.steamApp.market.provider.ResolvingIdProvider;
 import okhttp3.HttpUrl;
@@ -53,7 +53,7 @@ public class ItemOrdersHistogramFetcher {
      * @param marketHashName The unique market hash name of the item
      * @return An {@link ItemOrdersHistogram} object containing buy/sell order information,
      *         or {@code null} if the response is invalid or incomplete
-     * @throws FetcherException If a network or parsing error occurs
+     * @throws MarketFetcherException If a network or parsing error occurs
      */
     public ItemOrdersHistogram callAPI(String marketHashName) {
         HttpUrl url = new HttpUrl.Builder()
@@ -73,11 +73,10 @@ public class ItemOrdersHistogramFetcher {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
+            if (!response.isSuccessful() || response.body() == null) {
                 return null;
             }
 
-            if (response.body() == null) return null;
             String json = response.body().string();
 
             Map<String, Object> map = mapper.readValue(json, Map.class);
@@ -85,7 +84,7 @@ public class ItemOrdersHistogramFetcher {
 
             return new ItemOrdersHistogram(map);
         } catch (IOException e) {
-            throw new FetcherException(e);
+            throw new MarketFetcherException(e);
         }
     }
 

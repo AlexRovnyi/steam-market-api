@@ -1,9 +1,9 @@
-package com.rovnyi.steamApp.market.client;
+package com.rovnyi.steamApp.client;
 
-import com.rovnyi.steamApp.market.enums.AppID;
-import com.rovnyi.steamApp.market.enums.CountryCode;
-import com.rovnyi.steamApp.market.enums.CurrencyCode;
-import com.rovnyi.steamApp.market.enums.Language;
+import com.rovnyi.steamApp.enums.AppID;
+import com.rovnyi.steamApp.enums.CountryCode;
+import com.rovnyi.steamApp.enums.CurrencyCode;
+import com.rovnyi.steamApp.enums.Language;
 import com.rovnyi.steamApp.market.fetcher.ItemOverview;
 import com.rovnyi.steamApp.market.fetcher.ItemOverviewService;
 import com.rovnyi.steamApp.market.provider.ItemNameIdProvider;

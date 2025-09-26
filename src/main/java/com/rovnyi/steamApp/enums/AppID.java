@@ -1,4 +1,4 @@
-package com.rovnyi.steamApp.market.enums;
+package com.rovnyi.steamApp.enums;
 
 import java.util.Arrays;
 import java.util.Optional;

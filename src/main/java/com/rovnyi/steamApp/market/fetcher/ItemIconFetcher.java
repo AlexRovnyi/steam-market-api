@@ -1,6 +1,6 @@
 package com.rovnyi.steamApp.market.fetcher;
 
-import com.rovnyi.steamApp.market.enums.AppID;
+import com.rovnyi.steamApp.enums.AppID;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -39,7 +39,7 @@ public class ItemIconFetcher {
      *
      * @param marketHashName the unique market name of the item
      * @return the icon URL, or {@code null} if not found or request fails
-     * @throws FetcherException if a network or parsing error occurs
+     * @throws MarketFetcherException if a network or parsing error occurs
      */
     public String fetchIconUrl(String marketHashName) {
         HttpUrl url = new HttpUrl.Builder()
@@ -57,11 +57,10 @@ public class ItemIconFetcher {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
+            if (!response.isSuccessful() || response.body() == null) {
                 return null;
             }
 
-            if (response.body() == null) return null;
             String html = response.body().string();
 
             Document document = Jsoup.parse(html);
@@ -72,7 +71,7 @@ public class ItemIconFetcher {
 
             return null;
         } catch (IOException e) {
-            throw new FetcherException(e);
+            throw new MarketFetcherException(e);
         }
     }
 }

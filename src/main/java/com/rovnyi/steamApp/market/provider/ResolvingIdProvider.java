@@ -1,6 +1,6 @@
 package com.rovnyi.steamApp.market.provider;
 
-import com.rovnyi.steamApp.market.enums.AppID;
+import com.rovnyi.steamApp.enums.AppID;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -60,7 +60,7 @@ public class ResolvingIdProvider implements ItemNameIdProvider {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
+            if (!response.isSuccessful() || response.body() == null) {
                 return null;
             }
 

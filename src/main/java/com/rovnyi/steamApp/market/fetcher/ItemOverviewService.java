@@ -1,9 +1,9 @@
 package com.rovnyi.steamApp.market.fetcher;
 
-import com.rovnyi.steamApp.market.enums.AppID;
-import com.rovnyi.steamApp.market.enums.CountryCode;
-import com.rovnyi.steamApp.market.enums.CurrencyCode;
-import com.rovnyi.steamApp.market.enums.Language;
+import com.rovnyi.steamApp.enums.AppID;
+import com.rovnyi.steamApp.enums.CountryCode;
+import com.rovnyi.steamApp.enums.CurrencyCode;
+import com.rovnyi.steamApp.enums.Language;
 import com.rovnyi.steamApp.market.provider.ItemNameIdProvider;
 import com.rovnyi.steamApp.market.provider.ResolvingIdProvider;
 import org.jetbrains.annotations.NotNull;
@@ -24,8 +24,12 @@ import java.time.LocalDateTime;
 public class ItemOverviewService {
 
     private final PriceOverviewFetcher priceFetcher;
+
     private final ItemOrdersHistogramFetcher ordersFetcher;
+
     private final ItemIconFetcher iconFetcher;
+
+    private Boolean iconRequired = false;
 
     /**
      * Constructs a new {@code ItemOverviewService} with the given configuration.
@@ -36,7 +40,7 @@ public class ItemOverviewService {
      * @param language Language code (affects localization)
      * @param provider Provider for resolving item_nameid
      */
-    public ItemOverviewService(CurrencyCode currency, AppID appID, CountryCode country, Language language, ItemNameIdProvider provider) {
+    public ItemOverviewService(CurrencyCode currency, AppID appID, CountryCode country, Language language, ItemNameIdProvider provider, boolean iconRequired) {
         this.priceFetcher = new PriceOverviewFetcher.Builder()
                 .appID(appID)
                 .currency(currency)
@@ -51,6 +55,8 @@ public class ItemOverviewService {
                 .build();
 
         this.iconFetcher = new ItemIconFetcher(appID);
+
+        this.iconRequired = iconRequired;
     }
 
     /**
@@ -64,7 +70,18 @@ public class ItemOverviewService {
         ItemOrdersHistogram orders = ordersFetcher.callAPI(marketHashName);
         String iconUrl = iconFetcher.fetchIconUrl(marketHashName);
 
-        if (price == null || orders == null || iconUrl == null) return null;
+        if (price == null) {
+            System.out.println("Price is null");
+            return null;
+        }
+        else if (orders == null) {
+            System.out.println("Orders is null");
+            return null;
+        }
+        else if (iconUrl == null && iconRequired) {
+            System.out.println("IconUrl is null");
+            return null;
+        }
 
         LocalDateTime fetchedAt = LocalDateTime.now();
 
@@ -88,6 +105,7 @@ public class ItemOverviewService {
         private CurrencyCode currency = CurrencyCode.USD;
         private AppID appID = AppID.COUNTER_STRIKE_2;
         private ItemNameIdProvider provider;
+        private boolean iconRequired = false;
 
         /**
          * Sets the country code for localization.
@@ -144,6 +162,11 @@ public class ItemOverviewService {
             return this;
         }
 
+        public Builder setIconRequired(boolean iconRequired) {
+            this.iconRequired = iconRequired;
+            return this;
+        }
+
         /**
          * Builds the configured {@link ItemOverviewService}.
          * If no provider is set, defaults to {@link ResolvingIdProvider}.
@@ -154,7 +177,11 @@ public class ItemOverviewService {
             if (provider == null) {
                 provider = new ResolvingIdProvider(appID);
             }
-            return new ItemOverviewService(currency, appID, country, language, provider);
+            return new ItemOverviewService(currency, appID, country, language, provider, iconRequired);
         }
+    }
+
+    public void setIconRequired(Boolean iconRequired) {
+        this.iconRequired = iconRequired;
     }
 }

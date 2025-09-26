@@ -1,4 +1,4 @@
-package com.rovnyi.steamApp.market.enums;
+package com.rovnyi.steamApp.enums;
 
 /**
  * Enum containing all languages supported by Steam

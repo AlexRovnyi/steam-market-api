@@ -1,8 +1,8 @@
 package com.rovnyi.steamApp.market.fetcher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rovnyi.steamApp.market.enums.AppID;
-import com.rovnyi.steamApp.market.enums.CurrencyCode;
+import com.rovnyi.steamApp.enums.AppID;
+import com.rovnyi.steamApp.enums.CurrencyCode;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -43,7 +43,7 @@ public class PriceOverviewFetcher {
      * @param marketHashName The unique market hash name of the item
      * @return A {@link PriceOverview} object containing the parsed pricing information,
      *         or {@code null} if the response is invalid or incomplete
-     * @throws FetcherException If a network or parsing error occurs
+     * @throws MarketFetcherException If a network or parsing error occurs
      */
     public PriceOverview callAPI(String marketHashName) {
         HttpUrl url = new HttpUrl.Builder()
@@ -62,11 +62,10 @@ public class PriceOverviewFetcher {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
+            if (!response.isSuccessful() || response.body() == null) {
                 return null;
             }
 
-            if (response.body() == null) return null;
             String json = response.body().string();
 
             Map<String, Object> map = mapper.readValue(json, Map.class);
@@ -74,7 +73,7 @@ public class PriceOverviewFetcher {
 
             return new PriceOverview(map);
         } catch (IOException e) {
-            throw new FetcherException(e);
+            throw new MarketFetcherException(e);
         }
     }
 

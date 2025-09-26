@@ -1,4 +1,4 @@
-package com.rovnyi.steamApp.market.enums;
+package com.rovnyi.steamApp.enums;
 
 /**
  * Enum containing all country codes of countries/languages currently supported by Steam
