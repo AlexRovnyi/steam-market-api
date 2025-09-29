@@ -9,6 +9,8 @@ import com.rovnyi.steamApp.market.fetcher.ItemOverviewService;
 import com.rovnyi.steamApp.market.provider.ItemNameIdProvider;
 import com.rovnyi.steamApp.market.provider.ResolvingIdProvider;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Facade client for interacting with the Steam Market API.
@@ -22,6 +24,8 @@ public class SteamMarketClient {
 
     private final ItemOverviewService itemOverviewService;
 
+    private final Logger log;
+
     /**
      * Constructs a new {@code SteamMarketClient} using the provided configuration.
      *
@@ -31,14 +35,17 @@ public class SteamMarketClient {
      * @param language Interface language for Steam
      * @param provider Provider for resolving item_nameid
      */
-    public SteamMarketClient(CurrencyCode currency, AppID appID, CountryCode country, Language language, ItemNameIdProvider provider) {
+    public SteamMarketClient(CurrencyCode currency, AppID appID, CountryCode country, Language language, ItemNameIdProvider provider, Logger log) {
         this.itemOverviewService = new ItemOverviewService.Builder()
                 .currency(currency)
                 .appID(appID)
                 .country(country)
                 .language(language)
                 .provider(provider)
+                .withLogger(log)
                 .build();
+
+        this.log = log;
     }
 
     /**
@@ -48,6 +55,7 @@ public class SteamMarketClient {
      * @return {@link ItemOverview} object containing all available information, or {@code null} if any request failed
      */
     public ItemOverview fetchOverview(String marketHashName) {
+//        log.info("SteamMarketClient is Fetching overview for {}", marketHashName);
         return itemOverviewService.callAPI(marketHashName);
     }
 
@@ -62,6 +70,7 @@ public class SteamMarketClient {
         private CurrencyCode currency = CurrencyCode.USD;
         private AppID appID = AppID.COUNTER_STRIKE_2;
         private ItemNameIdProvider provider;
+        private Logger log = null;
 
         /**
          * Sets the country code used for request localization.
@@ -119,6 +128,11 @@ public class SteamMarketClient {
             return this;
         }
 
+        public Builder withLogger(Logger log) {
+            this.log = log;
+            return this;
+        }
+
         /**
          * Builds and returns a configured {@link SteamMarketClient} instance.
          *
@@ -128,7 +142,7 @@ public class SteamMarketClient {
             if (provider == null) {
                 provider = new ResolvingIdProvider(appID);
             }
-            return new SteamMarketClient(currency, appID, country, language, provider);
+            return new SteamMarketClient(currency, appID, country, language, provider, log);
         }
     }
 }

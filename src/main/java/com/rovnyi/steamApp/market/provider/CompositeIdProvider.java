@@ -1,5 +1,7 @@
 package com.rovnyi.steamApp.market.provider;
 
+import org.slf4j.Logger;
+
 import java.util.Map;
 
 /**
@@ -11,7 +13,10 @@ import java.util.Map;
 public class CompositeIdProvider implements ItemNameIdProvider {
 
     private final ResolvingIdProvider resolvingIdProvider;
+
     private final FileBackedIdProvider fileBackedIdProvider;
+
+    private Logger log;
 
     /**
      * Constructs a new composite provider with both a resolver and a file-based cache.
@@ -21,7 +26,10 @@ public class CompositeIdProvider implements ItemNameIdProvider {
      */
     public CompositeIdProvider (ResolvingIdProvider resolvingIdProvider, FileBackedIdProvider fileBackedIdProvider) {
         this.resolvingIdProvider = resolvingIdProvider;
+        resolvingIdProvider.setLogger(log);
+
         this.fileBackedIdProvider = fileBackedIdProvider;
+        fileBackedIdProvider.setLogger(log);
     }
 
     /**
@@ -32,13 +40,20 @@ public class CompositeIdProvider implements ItemNameIdProvider {
     @Override
     public String get(String marketHashName) {
         String itemNameId = fileBackedIdProvider.get(marketHashName);
-        if (itemNameId != null) return itemNameId;
+        if (itemNameId != null) {
+            if (log != null) log.debug("Fetched itemNameId from fileBackedIdProvider for market hash: {}", marketHashName);
+            return itemNameId;
+        }
 
         itemNameId = resolvingIdProvider.get(marketHashName);
+        if (log != null) log.debug("Fetched itemNameId from resolvingIdProvider for market hash: {}", marketHashName);
+
 
         if (itemNameId == null) return null;
 
         fileBackedIdProvider.put(marketHashName, itemNameId);
+        if (log != null) log.debug("Cached itemNameId for \"{}\" ({}) to file: {}", marketHashName, itemNameId, fileBackedIdProvider.getItemNameIdFile());
+
         return itemNameId;
     }
 
@@ -69,5 +84,9 @@ public class CompositeIdProvider implements ItemNameIdProvider {
      */
     public boolean remove(String marketHashName) {
         return fileBackedIdProvider.remove(marketHashName);
+    }
+
+    public void setLogger(Logger log) {
+        this.log = log;
     }
 }

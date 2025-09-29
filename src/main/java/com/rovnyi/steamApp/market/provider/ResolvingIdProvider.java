@@ -5,6 +5,7 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
@@ -24,6 +25,8 @@ public class ResolvingIdProvider implements ItemNameIdProvider {
     private final OkHttpClient client = new OkHttpClient();
 
     private final AppID appID;
+
+    private Logger log;
 
     /**
      * Constructs a new {@code ResolvingIdProvider} for the specified Steam application.
@@ -70,11 +73,20 @@ public class ResolvingIdProvider implements ItemNameIdProvider {
 
             Matcher matcher = pattern.matcher(html);
 
-            if (matcher.find()) return matcher.group(1);
+            if (matcher.find()) {
+                if (log != null) log.debug("ResolvingIdProvider fetched itemNameId for marketHashName: {}", marketHashName);
+                return matcher.group(1);
+            }
 
+            if (log != null) log.debug("ResolvingIdProvider failed for marketHashName: {}", marketHashName);
             return null;
         } catch (IOException e) {
+            if (log != null) log.error(e.getMessage());
             throw new IdResolvingException(e);
         }
+    }
+
+    public void setLogger(Logger log) {
+        this.log = log;
     }
 }

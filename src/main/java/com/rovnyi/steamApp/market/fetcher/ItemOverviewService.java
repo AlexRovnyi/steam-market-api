@@ -7,6 +7,7 @@ import com.rovnyi.steamApp.enums.Language;
 import com.rovnyi.steamApp.market.provider.ItemNameIdProvider;
 import com.rovnyi.steamApp.market.provider.ResolvingIdProvider;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import java.time.LocalDateTime;
 
@@ -29,7 +30,9 @@ public class ItemOverviewService {
 
     private final ItemIconFetcher iconFetcher;
 
-    private Boolean iconRequired = false;
+    private Boolean iconRequired;
+
+    private final Logger log;
 
     /**
      * Constructs a new {@code ItemOverviewService} with the given configuration.
@@ -40,10 +43,11 @@ public class ItemOverviewService {
      * @param language Language code (affects localization)
      * @param provider Provider for resolving item_nameid
      */
-    public ItemOverviewService(CurrencyCode currency, AppID appID, CountryCode country, Language language, ItemNameIdProvider provider, boolean iconRequired) {
+    public ItemOverviewService(CurrencyCode currency, AppID appID, CountryCode country, Language language, ItemNameIdProvider provider, boolean iconRequired, Logger log) {
         this.priceFetcher = new PriceOverviewFetcher.Builder()
                 .appID(appID)
                 .currency(currency)
+                .withLogger(log)
                 .build();
 
         this.ordersFetcher = new ItemOrdersHistogramFetcher.Builder()
@@ -52,11 +56,12 @@ public class ItemOverviewService {
                 .currency(currency)
                 .appID(appID)
                 .provider(provider)
+                .withLogger(log)
                 .build();
 
         this.iconFetcher = new ItemIconFetcher(appID);
-
         this.iconRequired = iconRequired;
+        this.log = log;
     }
 
     /**
@@ -67,19 +72,24 @@ public class ItemOverviewService {
      */
     public ItemOverview callAPI(String marketHashName) {
         PriceOverview price = priceFetcher.callAPI(marketHashName);
+        if (log != null) log.debug("ItemOverviewService fetched PriceOverview for \"{}\": {}", marketHashName, price);
+
         ItemOrdersHistogram orders = ordersFetcher.callAPI(marketHashName);
+        if (log != null) log.debug("ItemOverviewService fetched ItemOrdersHistogram for \"{}\": {}", marketHashName, orders);
+
         String iconUrl = iconFetcher.fetchIconUrl(marketHashName);
+        if (log != null) log.debug("ItemOverviewService fetched IconUrl for \"{}\": {}", marketHashName, iconUrl);
 
         if (price == null) {
-            System.out.println("Price is null");
+            log.info("\"{}\" - PriceOverview is null", marketHashName);
             return null;
         }
         else if (orders == null) {
-            System.out.println("Orders is null");
+            log.info("\"{}\" - ItemOrdersHistogram is null", marketHashName);
             return null;
         }
         else if (iconUrl == null && iconRequired) {
-            System.out.println("IconUrl is null");
+            log.info("\"{}\" - IconUrl is null", marketHashName);
             return null;
         }
 
@@ -106,6 +116,7 @@ public class ItemOverviewService {
         private AppID appID = AppID.COUNTER_STRIKE_2;
         private ItemNameIdProvider provider;
         private boolean iconRequired = false;
+        private  Logger log = null;
 
         /**
          * Sets the country code for localization.
@@ -167,6 +178,11 @@ public class ItemOverviewService {
             return this;
         }
 
+        public Builder withLogger(Logger log) {
+            this.log = log;
+            return this;
+        }
+
         /**
          * Builds the configured {@link ItemOverviewService}.
          * If no provider is set, defaults to {@link ResolvingIdProvider}.
@@ -175,9 +191,11 @@ public class ItemOverviewService {
          */
         public @NotNull ItemOverviewService build() {
             if (provider == null) {
-                provider = new ResolvingIdProvider(appID);
+                ResolvingIdProvider resolvingIdProvider = new ResolvingIdProvider(appID);
+                resolvingIdProvider.setLogger(log);
+                provider = resolvingIdProvider;
             }
-            return new ItemOverviewService(currency, appID, country, language, provider, iconRequired);
+            return new ItemOverviewService(currency, appID, country, language, provider, iconRequired, log);
         }
     }
 

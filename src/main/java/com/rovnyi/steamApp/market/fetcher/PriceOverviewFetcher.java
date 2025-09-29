@@ -8,6 +8,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.Map;
@@ -21,9 +22,13 @@ import java.util.Map;
 public class PriceOverviewFetcher {
 
     private final ObjectMapper mapper = new ObjectMapper();
+
     private final OkHttpClient client = new OkHttpClient();
 
+    private final Logger log;
+
     private final AppID appID;
+
     private final CurrencyCode currency;
 
     /**
@@ -32,9 +37,10 @@ public class PriceOverviewFetcher {
      * @param appID    Steam App ID (e.g. CS2)
      * @param currency Currency in which to return price values
      */
-    public PriceOverviewFetcher(AppID appID, CurrencyCode currency) {
+    public PriceOverviewFetcher(AppID appID, CurrencyCode currency,  Logger log) {
         this.appID = appID;
         this.currency = currency;
+        this.log = log;
     }
 
     /**
@@ -71,8 +77,10 @@ public class PriceOverviewFetcher {
             Map<String, Object> map = mapper.readValue(json, Map.class);
             if (map.size() < 2) return null;
 
+            if (log != null) log.debug("Map for PriceOverview: {}", map);
             return new PriceOverview(map);
         } catch (IOException e) {
+            if (log != null) log.error(e.getMessage());
             throw new MarketFetcherException(e);
         }
     }
@@ -85,6 +93,7 @@ public class PriceOverviewFetcher {
     public static class Builder {
         private AppID appID = AppID.COUNTER_STRIKE_2;
         private CurrencyCode currency = CurrencyCode.USD;
+        private Logger log = null;
 
         /**
          * Sets the Steam App ID.
@@ -108,13 +117,18 @@ public class PriceOverviewFetcher {
             return this;
         }
 
+        public Builder withLogger(Logger log) {
+            this.log = log;
+            return this;
+        }
+
         /**
          * Builds a configured {@link PriceOverviewFetcher} instance.
          *
          * @return A new {@link PriceOverviewFetcher}
          */
         public @NotNull PriceOverviewFetcher build() {
-            return new PriceOverviewFetcher(appID, currency);
+            return new PriceOverviewFetcher(appID, currency, log);
         }
     }
 }

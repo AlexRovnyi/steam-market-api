@@ -8,6 +8,8 @@ import okhttp3.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -23,6 +25,8 @@ public class ItemIconFetcher {
 
     private final AppID appID;
 
+    private Logger log;
+
     /**
      * Constructs a new icon fetcher for a specific Steam application.
      *
@@ -30,6 +34,11 @@ public class ItemIconFetcher {
      */
     public ItemIconFetcher(AppID appID) {
         this.appID = appID;
+    }
+
+    public ItemIconFetcher(AppID appID, Logger log) {
+        this.appID = appID;
+        this.log = log;
     }
 
     /**
@@ -67,10 +76,14 @@ public class ItemIconFetcher {
 
             Element image = document.selectFirst("img[src*=/economy/image/]");
 
-            if (image != null) return image.attr("src");
+            if (image != null) {
+                if (log != null) log.debug("Fetched icon url for: {}", marketHashName);
+                return image.attr("src");
+            }
 
             return null;
         } catch (IOException e) {
+            if (log != null) log.error(e.getMessage());
             throw new MarketFetcherException(e);
         }
     }

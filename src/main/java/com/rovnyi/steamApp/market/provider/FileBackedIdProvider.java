@@ -3,6 +3,7 @@ package com.rovnyi.steamApp.market.provider;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -25,6 +26,8 @@ public class FileBackedIdProvider implements ItemNameIdProvider {
 
     private final Path itemNameIdFile;
 
+    private Logger log;
+
     /**
      * Constructs a new file-backed provider that includes the received data file.
      *
@@ -35,7 +38,9 @@ public class FileBackedIdProvider implements ItemNameIdProvider {
 
         try {
             itemNameIdMap.putAll(mapper.readValue(itemNameIdFile.toFile(), new TypeReference<>() {}));
+            if (log != null) log.debug("itemNameIdFile putted to file: " + itemNameIdMap);
         } catch (IOException e) {
+            if (log != null) log.error(e.getMessage());
             throw new IdStorageException(e);
         }
     }
@@ -159,5 +164,13 @@ public class FileBackedIdProvider implements ItemNameIdProvider {
         } catch (IOException e) {
             throw new IdStorageException(e);
         }
+    }
+
+    public Path getItemNameIdFile() {
+        return itemNameIdFile;
+    }
+
+    public void setLogger(Logger log) {
+        this.log = log;
     }
 }

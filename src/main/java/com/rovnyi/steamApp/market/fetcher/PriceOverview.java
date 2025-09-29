@@ -11,8 +11,11 @@ import java.util.Map;
 public class PriceOverview {
 
     private boolean success;
+
     private double lowestPrice;
+
     private int volume;
+
     private double medianPrice;
 
     /**
@@ -30,7 +33,7 @@ public class PriceOverview {
             this.volume = 0;
             this.medianPrice = 0;
         } else {
-            this.volume = Integer.parseInt((String) map.get("volume"));
+            this.volume = extractValueInteger((String) map.get("volume"));
             this.medianPrice = extractValueDouble((String) map.get("median_price"));
         }
     }
@@ -44,6 +47,10 @@ public class PriceOverview {
      */
     private double extractValueDouble(String value) {
         return Double.parseDouble(value.replaceAll("[^\\d]", "")) / 100;
+    }
+
+    private int extractValueInteger(String value) {
+        return Integer.parseInt(value.replaceAll("[^\\d]", ""));
     }
 
     /**
