@@ -39,14 +39,19 @@ public class PriceOverview {
     }
 
     /**
-     * Converts formatted price text into a usable {@code double} value.
-     * Removes all non-digit characters and divides by 100.
+     * Extracts a numeric value from a price string (removes currency symbols and formatting).
      *
-     * @param value A price string such as "$0.25" or "₴1,50"
-     * @return Parsed price as a {@code double}
+     * @param value Raw string value (e.g. {@code "$0.20"})
+     * @return Parsed double value
      */
     private double extractValueDouble(String value) {
-        return Double.parseDouble(value.replaceAll("[^\\d]", "")) / 100;
+        String clean = value.replaceAll("[^\\d.,]", "");
+
+        clean = clean.replace(',', '.');
+
+        if (clean.isEmpty()) return 0.0;
+
+        return Double.parseDouble(clean);
     }
 
     private int extractValueInteger(String value) {

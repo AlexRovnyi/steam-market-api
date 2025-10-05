@@ -70,7 +70,13 @@ public class ItemOrdersHistogram {
      * @return Parsed double value
      */
     private double extractValueDouble(String value) {
-        return Double.parseDouble(value.replaceAll("[^\\d]", "")) / 100;
+        String clean = value.replaceAll("[^\\d.,]", "");
+
+        clean = clean.replace(',', '.');
+
+        if (clean.isEmpty()) return 0.0;
+
+        return Double.parseDouble(clean);
     }
 
     /**

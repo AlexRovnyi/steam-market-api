@@ -55,7 +55,7 @@ public class SteamMarketClient {
      * @return {@link ItemOverview} object containing all available information, or {@code null} if any request failed
      */
     public ItemOverview fetchOverview(String marketHashName) {
-//        log.info("SteamMarketClient is Fetching overview for {}", marketHashName);
+        if (log != null) log.info("SteamMarketClient is Fetching overview for {}", marketHashName);
         return itemOverviewService.callAPI(marketHashName);
     }
 
