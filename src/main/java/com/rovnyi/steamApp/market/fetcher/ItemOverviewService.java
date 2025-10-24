@@ -81,15 +81,15 @@ public class ItemOverviewService {
         if (log != null) log.debug("ItemOverviewService fetched IconUrl for \"{}\": {}", marketHashName, iconUrl);
 
         if (price == null) {
-            log.info("\"{}\" - PriceOverview is null", marketHashName);
+            if (log != null) log.info("\"{}\" - PriceOverview is null", marketHashName);
             return null;
         }
         else if (orders == null) {
-            log.info("\"{}\" - ItemOrdersHistogram is null", marketHashName);
+            if (log != null) log.info("\"{}\" - ItemOrdersHistogram is null", marketHashName);
             return null;
         }
         else if (iconUrl == null && iconRequired) {
-            log.info("\"{}\" - IconUrl is null", marketHashName);
+            if (log != null) log.info("\"{}\" - IconUrl is null", marketHashName);
             return null;
         }
 

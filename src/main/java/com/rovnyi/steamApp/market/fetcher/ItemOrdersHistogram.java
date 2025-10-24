@@ -30,6 +30,10 @@ public class ItemOrdersHistogram {
      * @param map Parsed JSON data as a Map
      */
     public ItemOrdersHistogram(Map<String, Object> map) {
+        this(map, null);
+    }
+
+    public ItemOrdersHistogram(Map<String, Object> map, Logger log) {
         this.success = (Integer) map.get("success") == 1;
         if (!success) return;
 
@@ -39,10 +43,7 @@ public class ItemOrdersHistogram {
 
         extractOrderGraph(map, "buy_order_graph", buyOrderGraph);
         extractOrderGraph(map, "sell_order_graph", sellOrderGraph);
-    }
 
-    public ItemOrdersHistogram(Map<String, Object> map, Logger log) {
-        new ItemOrdersHistogram(map);
         this.log = log;
     }
 
@@ -81,7 +82,7 @@ public class ItemOrdersHistogram {
      */
     private double extractValueDouble(String value) {
         try {
-            return Double.parseDouble(value);
+            return Double.parseDouble(value) / 100;
         }  catch (NumberFormatException e) {
             if (log != null) log.info("value is not a number");
         }
