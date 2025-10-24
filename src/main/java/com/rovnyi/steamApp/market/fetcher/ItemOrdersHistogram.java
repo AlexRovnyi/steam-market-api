@@ -81,6 +81,8 @@ public class ItemOrdersHistogram {
      * @return Parsed double value
      */
     private double extractValueDouble(String value) {
+        if (value == null) return 0;
+
         try {
             return Double.parseDouble(value) / 100;
         }  catch (NumberFormatException e) {
