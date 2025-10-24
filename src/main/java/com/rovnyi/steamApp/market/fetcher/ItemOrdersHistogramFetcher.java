@@ -81,7 +81,10 @@ public class ItemOrdersHistogramFetcher {
 
         Request request = new Request.Builder()
                 .url(url)
-                .header("User-Agent", "Mozilla/5.0")
+                .header("User-Agent",
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+                        "AppleWebKit/537.36 (KHTML, like Gecko) " +
+                        "Chrome/126.0.6478.185 Safari/537.36")
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
@@ -94,7 +97,7 @@ public class ItemOrdersHistogramFetcher {
             Map<String, Object> map = mapper.readValue(json, Map.class);
             if (map.size() < 2) return null;
 
-            return new ItemOrdersHistogram(map);
+            return new ItemOrdersHistogram(map, log);
         } catch (IOException e) {
             throw new MarketFetcherException(e);
         }

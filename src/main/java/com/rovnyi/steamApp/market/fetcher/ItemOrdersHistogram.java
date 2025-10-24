@@ -1,5 +1,8 @@
 package com.rovnyi.steamApp.market.fetcher;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +14,9 @@ import java.util.Map;
  */
 public class ItemOrdersHistogram {
 
-    private final boolean success;
+    private Logger log;
+
+    private boolean success;
 
     private double highestBuyOrder;
 
@@ -34,6 +39,11 @@ public class ItemOrdersHistogram {
 
         extractOrderGraph(map, "buy_order_graph", buyOrderGraph);
         extractOrderGraph(map, "sell_order_graph", sellOrderGraph);
+    }
+
+    public ItemOrdersHistogram(Map<String, Object> map, Logger log) {
+        new ItemOrdersHistogram(map);
+        this.log = log;
     }
 
     /**
@@ -70,6 +80,12 @@ public class ItemOrdersHistogram {
      * @return Parsed double value
      */
     private double extractValueDouble(String value) {
+        try {
+            return Double.parseDouble(value);
+        }  catch (NumberFormatException e) {
+            if (log != null) log.info("value is not a number");
+        }
+
         String clean = value.replaceAll("[^\\d.,]", "");
 
         clean = clean.replace(',', '.');

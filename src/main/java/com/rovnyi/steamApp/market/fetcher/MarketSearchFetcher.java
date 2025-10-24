@@ -48,7 +48,10 @@ public class MarketSearchFetcher {
 
         Request request = new Request.Builder()
                 .url(url)
-                .header("User-Agent", "Mozilla/5.0")
+                .header("User-Agent",
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+                        "AppleWebKit/537.36 (KHTML, like Gecko) " +
+                        "Chrome/126.0.6478.185 Safari/537.36")
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
@@ -65,7 +68,7 @@ public class MarketSearchFetcher {
         }
     }
 
-    public List<String> extractNamesFromJson(String json) throws IOException {
+    private List<String> extractNamesFromJson(String json) throws IOException {
         JsonNode root = mapper.readTree(json);
 
         String html = root.path("results_html").asText();
